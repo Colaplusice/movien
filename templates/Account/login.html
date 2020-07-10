@@ -1,0 +1,57 @@
+{% extends 'Account/bash.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4 col-md-push-8">
+            <!--Start Sign In Form-->
+            <form action="{% url 'account:login' %}" method="POST" class="fh5co-form animate-box fadeInRight animated-fast" data-animate-effect = "fadeInRight">
+                <h2>登录</h2>
+                <div class="form-group">
+                    <label for="id_username" class="sr-only">用户名</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="USERNAME" autocomplete="off" value="{{ request.session.username }}">
+                </div>
+                <div class="form-group">
+                    <label for="id_password" class="sr-only">密码</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="PASSWORD" autocomplete="off" value="{{ request.session.password }}">
+                </div>
+                {% if request.session.message %}
+                    <div class="message-group">
+                        <label for="message" class="message">
+                            {{ request.session.message }}
+                        </label>
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="remember">
+                        <input type="checkbox" id="remember" name="remember" checked>
+                        记住我
+                    </label>
+                </div>
+                <div class="form-group">
+                    <p>
+                        还未注册?
+                        <a href="{% url 'account:logonPage' %}">注册</a>
+                        |
+                        <a href="#">忘记密码?</a>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="登录" class="btn btn-primary">
+                </div>
+                {% csrf_token %}
+            </form>
+
+        </div>
+    </div>
+    <div class="row" style="padding-top: 480px; clear: both;">
+        <div class="col-md-12 text-center">
+            <p>
+                <small>
+                    All Right Reserved.Come from
+                    <a href="#" target="_blank" title="Jekity">Jekity</a>
+                </small>
+            </p>
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends 'Movies/base.html' %}
+{% block content %}
+    <script>
+    function getMovieInfo(movie_id) {
+        url = 'https://api.themoviedb.org/3/find/tt' + movie_id + '?external_source=imdb_id&api_key={{ api_key }}'
+            + '&language=zh-CN'
+        $.getJSON(url,
+            function (result) {
+                title_div = document.getElementById('title')
+                title_div.innerHTML = '<strong>' + result.movie_results[0].title + '</strong>'
+
+
+                image_url = 'http://image.tmdb.org/t/p/w500/'
+                    + result.movie_results[0].poster_path
+
+                img_tag = document.getElementById('poster').setAttribute('src', image_url)
+
+                document.getElementById('overview').innerHTML = result.movie_results[0].overview
+                document.getElementById('release_date').innerHTML = result.movie_results[0].release_date
+                document.getElementById('lan').innerHTML = result.movie_results[0].original_language
+                document.getElementById('avg_rating').innerHTML = result.movie_results[0].vote_average
+            })
+    }
+    {# 存储点击like按钮后的log日志 #}
+    function item_like(){
+        add_log('{{ user_id }}','like','{{ movie_id }}', '{{ session_id }}', '{{ csrf_token }}')
+        layui.use('layer', function () {
+            var layer = layui.layer;
+            layer.alert('您点击了喜欢 \r\n 喜好已经被我记录哦！');
+        });
+    }
+    $(document).ready(function () {
+        getMovieInfo('{{ movie_id }}')
+    })
+
+    function add_movie(id, recs) {
+            $.getJSON(get_url(id), function (mov) {
+                image_url = 'http://image.tmdb.org/t/p/w500/'
+                    + mov.movie_results[0].poster_path
+
+
+                img = document.createElement("img");
+                img.setAttribute('id', id);
+                img.setAttribute('class', 'movie');
+                img.setAttribute('src', image_url);
+                img.setAttribute('class', "img-responsive")
+                img.setAttribute('style', 'height: 250px')
+                img.setAttribute('title', mov.movie_results[0].title);
+
+                textdiv = document.createElement("div");
+                textdiv.setAttribute('class', 'caption')
+                h5 = document.createElement("div")
+                h5.innerHTML = '<strong>' + mov.movie_results[0].title + '</strong>'
+                h5.setAttribute('class', 'line-clamp')
+                textdiv.appendChild(h5)
+
+                h6 = document.createElement("div")
+                h6.innerHTML = '<strong>a平均评分</strong>' + mov.movie_results[0].vote_average
+                h6.setAttribute('class', 'line-clamp-rating')
+                textdiv.appendChild(h6)
+
+                p = document.createElement("p")
+                a1 = document.createElement("a")
+                a1.setAttribute('href', "/movies/movie/" + id);
+                a1.setAttribute('class', 'btn btn-primary')
+                a1.setAttribute('role', 'button')
+                a1.setAttribute('onclick', "add_impression({{user_id}}, 'details', " +
+                    id + ", '{{ session_id }}','{{ csrf_token }}')")
+                a1.innerHTML = '详情'
+                p.appendChild(a1)
+
+                a2 = document.createElement("a")
+                a2.setAttribute('class', 'btn')
+                a2.setAttribute('onclick', "add_impression({{user_id}}, 'save', " +
+                    id + ", '{{ session_id }}','{{ csrf_token }}')")
+                a2.innerHTML = '<button class="glyphicon glyphicon-star-empty"></button>'
+                p.appendChild(a2)
+
+                textdiv.appendChild(p)
+
+                contentdiv = document.createElement("div")
+                contentdiv.setAttribute('class', 'thumbnail')
+                contentdiv.appendChild(img)
+                contentdiv.appendChild(textdiv)
+
+                div = document.createElement("div");
+                div.setAttribute('class', 'col-xs-2 col-md-2 ');
+                div.appendChild(contentdiv)
+
+                recs.appendChild(div)
+
+            })
+
+        }
+
+    function get_cb_recs(userid) {
+        url = '/rec/cb/user/' + userid + '/'
+        element_name = 'cb_recs'
+
+        get_recs(url, element_name)
+    }
+
+    function get_item_recs(userid, itemid) {
+        url = '/rec/item/user/' + userid + '/' + itemid + '/'
+        element_name = 'cb_recs'
+
+        get_recs(url, element_name)
+    }
+
+    function get_hf_recs(userid) {
+        url = '/rec/hf/user/' + userid + '/'
+        element_name = 'hf_recs'
+
+        get_recs(url, element_name)
+    }
+
+    function get_recs(url, element_name) {
+        $.getJSON(url, function (result) {
+                if ((result.data != null && result.data.length > 0)) {
+                    recs = document.getElementById(element_name)
+                    recs.style.display = 'block'
+                    result.data.forEach(function (element) {
+                        add_movie(element[0], recs)
+                    })
+                }
+            }
+        )
+
+    }
+    </script>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-12">
+                <div class="row">
+                    <div id="img" class="col-sm-6">
+                        <img id="poster" class="img-responsive" src="" alt="movie poster"/>
+                    </div>
+                    <div class="col-sm-6">
+                        <div><h2 id="title"></h2></div>
+                        <div><strong>上映日期:</strong>
+                            <p id="release_date"></p></div>
+                        <div><strong>Description:</strong>
+                            <p id="overview"></p></div>
+                        <div><strong>语言:</strong>
+                            <p id="lan"></p></div>
+                        <div><strong>平均评分:</strong>
+                            <p id="avg_rating"></p></div>
+                        <div><strong>类型:</strong>
+                            <p>
+                                {% if movie_genres %}
+                                    | {% for genre in movie_genres %}
+                                    {{ genre.name }} |
+                                {% endfor %}
+                                {% endif %}
+                            </p></div>
+                        <div>
+                            <a type="button" onclick="item_like()" class="btn btn-primary btn-lg">喜欢</a>
+                        </div>
+
+                    </div>
+                </div>
+                <div id="cb_recs" class="row" style="display: none">
+                    <h2 style="padding-left: 16px">相似内容</h2>
+                </div>
+                <div id="hf_recs" class="row" style="display: none">
+                    <h2 style="padding-left: 16px">混合推荐内容</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        {#get_cb_recs({{ user_id }})#}
+        get_item_recs({{ user_id }}, {{movie_id}})
+        get_hf_recs({{user_id}})
+    </script>
+{% endblock %}

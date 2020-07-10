@@ -1,0 +1,56 @@
+{% extends "Account/bash.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4 col-md-push-8">
+            <!--Start Sign up From-->
+            <form action="{% url 'account:logon' %}"  method="POST" class="fh5co-form animate-box fadeInRight
+            animate-fast" data-animate-effect="fadeInRight">
+                <h2>注册</h2>
+                <div class="form-group">
+                    <label for="email" class="sr-only">邮箱</label>
+                    <input type="text" class="form-control" id="email" placeholder="Email" name="email"
+                           autocomplete="off" value="{{ request.session.username }}" >
+                </div>
+                <div class="form-group">
+                    <label for="password" class="sr-only">输入密码</label>
+                    <input type="password" class="form-control" id="password" placeholder="输入密码" name="password"
+                           autocomplete="off" value="{{ request.session.password }}">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="sr-only">确认密码</label>
+                    <input type="password" class="form-control" id="re-password" placeholder="确认密码"
+                           name="re_password" autocomplete="off">
+                </div>
+                {% if request.session.message %}
+                    <div class="message-group">
+                        <label for="message" class="message">
+                            {{ request.session.message }}
+                        </label>
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <p>
+                        已经注册?
+                        <a href="{% url 'account:loginPage' %}">登录</a>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="注册" class="btn btn-primary">
+                </div>
+                 {% csrf_token %}
+            </form>
+        </div>
+    </div>
+    <div class="row" style="padding-top: 480px; clear: both;">
+        <div class="col-md-12 text-center">
+            <p>
+                <small>
+                    All Right Reserved.Come from
+                    <a href="#" target="_blank" title="Jekity">Jekity</a>
+                </small>
+            </p>
+
+        </div>
+    </div>
+{% endblock %}

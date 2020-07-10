@@ -1,0 +1,371 @@
+{% extends "Movies/base.html" %}
+{% block head %}
+    <script>
+        function getMovieInfo(movie_id, title) {
+            url = 'https://api.themoviedb.org/3/find/tt' + movie_id + '?external_source=imdb_id&api_key={{ api_key }}'
+            + '&language=zh-CN'
+            $.getJSON(url,
+                function (result) {
+                    if (result.movie_results != null) {
+                        {#alert(JSON.stringify(result))#}
+                        img_tag = document.getElementById('src_' + movie_id)
+                        image_url = 'http://image.tmdb.org/t/p/w500/'
+                            + result.movie_results[0].poster_path
+                        img = document.createElement("img");
+                        img.setAttribute('id', movie_id);
+                        img.setAttribute('class', 'movie');
+                        img.setAttribute('src', image_url);
+                        img.setAttribute('class', "img-responsive")
+                        img.setAttribute('style', 'height: 250px')
+                        img.setAttribute('title', result.movie_results[0].title);
+
+                        textdiv = document.createElement("div");
+                        textdiv.setAttribute('class', 'caption')
+                        h5 = document.createElement("div")
+                        h5.innerHTML = '<strong>' + result.movie_results[0].title + '</strong>'
+                        h5.setAttribute('class', 'line-clamp')
+                        textdiv.appendChild(h5)
+
+                        h6 = document.createElement("div")
+                        h6.innerHTML = '<strong>平均评分</strong>' + result.movie_results[0].vote_average
+                        h6.setAttribute('class', 'line-clamp-rating')
+                        textdiv.appendChild(h6)
+
+                        p = document.createElement("p")
+                        a1 = document.createElement("a")
+                        a1.setAttribute('href', "/movies/movie/" + movie_id);
+                        a1.setAttribute('class', 'btn btn-primary')
+                        a1.setAttribute('role', 'button')
+                        a1.setAttribute('onclick', "add_log({{user_id}}, 'details', " +
+                            movie_id + ", '{{ session_id }}','{{ csrf_token }}')")
+                        a1.innerHTML = '详情'
+                        p.appendChild(a1)
+
+                        a2 = document.createElement("a")
+                        a2.setAttribute('class', 'btn')
+                        a2.setAttribute('onclick', "add_log({{user_id}}, 'save', " +
+                            movie_id + ", '{{ session_id }}','{{ csrf_token }}')")
+                        a2.innerHTML = '<button class="glyphicon glyphicon-star-empty"></button>'
+                        p.appendChild(a2)
+
+                        textdiv.appendChild(p)
+
+                        contentdiv = document.createElement("div")
+                        contentdiv.setAttribute('class', 'thumbnail')
+                        contentdiv.appendChild(img)
+                        contentdiv.appendChild(textdiv)
+
+                        div = document.createElement("div");
+                        div.setAttribute('class', 'col-xs-2 col-md-2');
+                        div.appendChild(contentdiv)
+
+                        $('#movies').append(div)
+
+
+                    }
+                })
+        }
+
+        function addMovieInfo(movie_id, title) {
+            url = 'https://api.themoviedb.org/3/find/tt' + movie_id + '?external_source=imdb_id&api_key={{ api_key }}'
+                + '&language=zh-CN'
+            $.getJSON(url,
+                function (result) {
+                    if (result.movie_results != null) {
+                        img_tag = document.getElementById('src_' + movie_id)
+                        image_url = 'http://image.tmdb.org/t/p/w500/'
+                            + result.movie_results[0].poster_path
+                        img = document.createElement("img");
+                        img.setAttribute('id', movie_id);
+                        img.setAttribute('class', 'movie');
+                        img.setAttribute('src', image_url);
+                        img.setAttribute('class', "img-responsive")
+                        img.setAttribute('style', 'height: 128px')
+                        img.setAttribute('title', result.movie_results[0].title);
+
+                        textdiv = document.createElement("div");
+                        textdiv.setAttribute('class', 'caption')
+                        h5 = document.createElement("div")
+                        h5.innerHTML = '<strong>' + result.movie_results[0].title + '</strong>'
+                        h5.setAttribute('class', 'custom-line-clamp')
+                        textdiv.appendChild(h5)
+
+                        h6 = document.createElement("div")
+                        h6.innerHTML = '<strong>平均评分</strong>' + result.movie_results[0].vote_average
+                        h6.setAttribute('class', 'line-clamp-rating')
+                        textdiv.appendChild(h6)
+
+                        p = document.createElement("p")
+                        a1 = document.createElement("a")
+                        a1.setAttribute('href', "/movies/movie/" + movie_id);
+                        a1.setAttribute('class', 'btn btn-primary custom-btn-primary')
+                        a1.setAttribute('role', 'button')
+                        a1.setAttribute('style', 'font-size:8px;')
+                        a1.setAttribute('onclick', "add_log({{user_id}}, 'details', " +
+                            movie_id + ", '{{ session_id }}','{{ csrf_token }}')")
+                        a1.innerHTML = '详情'
+                        p.appendChild(a1)
+
+                        a2 = document.createElement("a")
+                        a2.setAttribute('class', 'btn')
+                        a2.setAttribute('onclick', "add_log({{user_id}}, 'save', " +
+                            movie_id + ", '{{ session_id }}','{{ csrf_token }}')")
+                        a2.innerHTML = '<button class="glyphicon glyphicon-star-empty" style="font-size:8px;"></button>'
+                        p.appendChild(a2)
+
+                        textdiv.appendChild(p)
+
+                        contentdiv = document.createElement("div")
+                        contentdiv.setAttribute('class', 'thumbnail')
+                        contentdiv.appendChild(img)
+                        contentdiv.appendChild(textdiv)
+
+                        div = document.createElement("div");
+                        div.setAttribute('class', 'col-xs-8 col-md-8 col-md-offset-2');
+                        div.appendChild(contentdiv)
+
+                        $('#top_content_right').append(div)
+
+
+                    }
+                })
+        }
+
+        function add_movie(id, recs) {
+            $.getJSON(get_url(id), function (mov) {
+                image_url = 'http://image.tmdb.org/t/p/w500/'
+                    + mov.movie_results[0].poster_path
+
+
+                img = document.createElement("img");
+                img.setAttribute('id', id);
+                img.setAttribute('class', 'movie');
+                img.setAttribute('src', image_url);
+                img.setAttribute('class', "img-responsive")
+                img.setAttribute('style', 'height: 250px')
+                img.setAttribute('title', mov.movie_results[0].title);
+
+                textdiv = document.createElement("div");
+                textdiv.setAttribute('class', 'caption')
+                h5 = document.createElement("div")
+                h5.innerHTML = '<strong>' + mov.movie_results[0].title + '</strong>'
+                h5.setAttribute('class', 'line-clamp')
+                textdiv.appendChild(h5)
+
+                h6 = document.createElement("div")
+                h6.innerHTML = '<strong>平均评分</strong>' + mov.movie_results[0].vote_average
+                h6.setAttribute('class', 'line-clamp-rating')
+                textdiv.appendChild(h6)
+
+                p = document.createElement("p")
+                a1 = document.createElement("a")
+                a1.setAttribute('href', "/movies/movie/" + id);
+                a1.setAttribute('class', 'btn btn-primary')
+                a1.setAttribute('role', 'button')
+                a1.setAttribute('onclick', "add_impression({{user_id}}, 'details', " +
+                    id + ", '{{ session_id }}','{{ csrf_token }}')")
+                a1.innerHTML = '详情'
+                p.appendChild(a1)
+
+                a2 = document.createElement("a")
+                a2.setAttribute('class', 'btn')
+                a2.setAttribute('onclick', "add_impression({{user_id}}, 'save', " +
+                    id + ", '{{ session_id }}','{{ csrf_token }}')")
+                a2.innerHTML = '<button class="glyphicon glyphicon-star-empty"></button>'
+                p.appendChild(a2)
+
+                textdiv.appendChild(p)
+
+                contentdiv = document.createElement("div")
+                contentdiv.setAttribute('class', 'thumbnail')
+                contentdiv.appendChild(img)
+                contentdiv.appendChild(textdiv)
+
+                div = document.createElement("div");
+                div.setAttribute('class', 'col-xs-2 col-md-2 ');
+                div.appendChild(contentdiv)
+
+                recs.appendChild(div)
+
+            })
+
+        }
+
+        {#加载首页正常电影数据#}
+        {% if movies %}
+            {% for movie in movies %}
+                {% if movie.movie_id %}
+                    getMovieInfo('{{ movie.movie_id }}', '{{ movie.title }}');
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        {#加载用户历史记录#}
+        {% if user_items %}
+            {% for movie in movies %}
+                {% if movie.movie_id %}
+                    addMovieInfo('{{ movie.movie_id }}', '{{ movie.title }}');
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        function get_movie_title(id, recs) {
+            $.getJSON(get_url(id), function (mov) {
+                var li = document.createElement("li")
+                li.innerHTML = '<a ' +
+                    'onclick=\'PostRecClicked(\"'
+                    + id + '\", \"rec:chart\")\''
+                    + "href='/movies/movie/" + id + "'>"
+                    + (Math.ceil(Math.random()*1000) + 1) + ". "
+                    + mov.movie_results[0].title + "</a>";
+                recs.appendChild(li)
+            })
+
+        }
+
+        function getTopContent() {
+            $.getJSON('/rec/chart', function (result) {
+                var ul = document.getElementById("top_content");
+                result.data.forEach(function (element, index, array) {
+                    get_movie_title(element.movie_id, ul)
+
+                });
+            })
+        }
+
+        function get_association_rule_recs(userid) {
+            url = '/rec/ar/' + userid + '/'
+
+            $.getJSON(url,
+                function (result) {
+                    if ((result.data != null) && (result.data.length > 0)) {
+                        recs = document.getElementById('association_rules_recs')
+                        recs.style.display = 'block'
+
+                        result.data.forEach(function (element, index, array) {
+
+                            add_movie(element.id, recs)
+
+                        });
+                    }
+
+                });
+        }
+
+        function get_cf_recs(user_id) {
+            url = '/rec/cf/user/' + user_id + '/'
+            element_name = 'cf_recs'
+            get_recs(url, element_name)
+        }
+
+        function get_mf_recs(userid) {
+            url = '/rec/mf/user/' + userid + '/'
+            element_name = 'mf_recs'
+
+            get_recs(url, element_name)
+        }
+
+        function get_cb_recs(userid) {
+            url = '/rec/cb/user/' + userid + '/'
+            element_name = 'cb_recs'
+
+            get_recs(url, element_name)
+        }
+
+        function get_hf_recs(userid) {
+            url = '/rec/hf/user/' + userid + '/'
+            element_name = 'hf_recs'
+
+            get_recs(url, element_name)
+        }
+
+
+        function get_recs(url, element_name) {
+            $.getJSON(url, function (result) {
+                    if ((result.data != null && result.data.length > 0)) {
+                        recs = document.getElementById(element_name)
+                        recs.style.display = 'block'
+                        result.data.forEach(function (element) {
+                            add_movie(element[0], recs)
+                        })
+                    }
+                }
+            )
+
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-xs-2 col-md-2">
+            <div class="well">
+                <strong>热门推荐</strong><br/>
+                <ol id="top_content" class="nav nav-sidebar"></ol>
+            </div>
+        </div>
+        <div class="col-xs-8 col-md-8 right-content">
+            <div id="movies" class="row"></div>
+            <div id="cf_recs" class="row" style="display: none">
+                <h2 style="padding-left: 16px"> 猜你喜欢 </h2>
+            </div>
+            <div id="association_rules_recs" class="row" style="display: none">
+                <h2>关联推荐</h2>
+            </div>
+            <div id="mf_recs" class="row" style="display: none">
+                <h2 style="padding-left: 16px">为你推荐</h2>
+            </div>
+            <div id="cb_recs" class="row" style="display: none">
+                <h2 style="padding-left: 16px">相似内容</h2>
+            </div>
+            <div id="hf_recs" class="row" style="display: none">
+                <h2 style="padding-left: 16px">混合推荐</h2>
+            </div>
+            <div class="row pagination-bottom">
+                {% if movies.has_other_pages %}
+                    <ul class="pagination">
+                        {% if movies.has_previous %}
+                            <li><a href="?page={{ movies.previous_page_number }}">&laquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                        {% for i in pages %}
+                            {% if i == movies.number %}
+                                <li class="active">
+                                    <span>{{ i }} <span class="sr-only">(current)</span></span>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href="?page={{ i }}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if movies.has_next %}
+                            <li><a href="?page={{ movies.next_page_number }}">&raquo;</a></li>
+                        {% else %}
+                            <li class="disabled"><span>&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-xs-2 col-md-2" style="background: rgb(250, 250, 250);">
+            <div style="margin-bottom: 24px">
+                <strong>评分过的项目</strong><br/>
+            </div>
+
+            <div id='top_content_right' class="row text-center" style="overflow-y: auto;max-height: 840px">
+            </div>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        getTopContent();
+        get_association_rule_recs({{user_id}})
+        get_cf_recs({{user_id}})
+        get_mf_recs({{user_id}})
+        get_cb_recs({{user_id}})
+        get_hf_recs({{user_id}})
+    </script>
+
+{% endblock %}

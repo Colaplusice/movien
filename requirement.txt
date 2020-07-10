@@ -1,0 +1,10 @@
+tqdm
+psycopg2-binary
+numpy
+scipy
+pandas
+django
+requests
+nltk
+gensim
+stop-words
