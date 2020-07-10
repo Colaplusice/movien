@@ -26,7 +26,7 @@ SECRET_KEY = 'xe#bgt)r=!rrocr)a4$df-yy@$=66(m7za(q5#j6zwbs!4d$4x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['movie3.colaplusice.com', '115.29.191.175']
 
 # Application definition
 
