@@ -1,9 +1,10 @@
+pymysql==0.9.3
+django==2.2.10
+django-simpleui==2.1
 tqdm
-psycopg2-binary
 numpy
 scipy
 pandas
-django
 requests
 nltk
 gensim

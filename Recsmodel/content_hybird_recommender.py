@@ -1,10 +1,11 @@
-from Recsmodel.baseModel import baseModel
-from Analytics.models import Rating
-from django.db.models import Q
-import time
 from decimal import Decimal
+
+from django.db.models import Q
+
+from Analytics.models import Rating
 from Recommender.models import Similarity, LdaSimilarity
-from itertools import chain
+from Recsmodel.baseModel import baseModel
+
 
 class ContentHybridRecs(baseModel):
     def __init__(self, min_sim=0):
@@ -23,25 +24,26 @@ class ContentHybridRecs(baseModel):
         movie_ids = {movie['movie_id']: movie['rating'] for movie in active_user_items}
         user_mean = sum(movie_ids.values()) / len(movie_ids)
         candidate_items_sim = Similarity.objects.filter(Q(source__in=movie_ids.keys())
-                                                    & ~Q(target__in=movie_ids.keys())
-                                                    & Q(similarity__gt=self.min_sim)
-                                                    )
-        candidate_items_lda = LdaSimilarity.objects.filter(Q(source__in=movie_ids.keys())
                                                         & ~Q(target__in=movie_ids.keys())
                                                         & Q(similarity__gt=self.min_sim)
                                                         )
+        candidate_items_lda = LdaSimilarity.objects.filter(Q(source__in=movie_ids.keys())
+                                                           & ~Q(target__in=movie_ids.keys())
+                                                           & Q(similarity__gt=self.min_sim)
+                                                           )
 
         # candidate_items = candidate_items_sim.order_by('-similarity')[:self.max_candidates]
         # candidate_items_1 = candidate_items.values_list('source', 'target')
 
-        candidate_items_1 = candidate_items_sim.order_by('-similarity')[:self.max_candidates].values_list('source',
-                                                                                                          'target')
-
+        candidate_items_1 = candidate_items_sim.order_by('-similarity')[:self.max_candidates].values_list('source', 'target')
         # candidate_items = candidate_items_lda.order_by('-similarity')[:self.max_candidates]
         candidate_items = candidate_items_lda.order_by('-similarity')
         candidate_items_2 = candidate_items.values_list('source', 'target')
-
-        intersection_items = list(candidate_items_1.intersection(candidate_items_2))
+        print('item1', candidate_items_1)
+        print('item2', candidate_items_2)
+        candidate_items_1 = set(candidate_items_1)
+        candidate_items_2 = set(candidate_items_2)
+        intersection_items = candidate_items_1.intersection(candidate_items_2)
 
         a = 0.2
         for candidate in candidate_items:
@@ -49,7 +51,7 @@ class ContentHybridRecs(baseModel):
             target = candidate.target
             similarity = candidate.similarity
             if (source, target) in intersection_items:
-                candidate.similarity = Decimal(a) * similarity + Decimal(1-a) * similarity
+                candidate.similarity = Decimal(a) * similarity + Decimal(1 - a) * similarity
             else:
                 candidate.similarity = Decimal(a) * similarity
 
@@ -83,7 +85,7 @@ class ContentHybridRecs(baseModel):
         for movie in active_user_items:
             # 取出lda物品相似度
             lda = LdaSimilarity.objects.filter(Q(source=movie.movie_id)
-                                           & Q(target=target)).first()
+                                               & Q(target=target)).first()
             # 取出余弦相似度
             sim = Similarity.objects.filter(Q(source=movie.movie_id)
                                             & Q(target=target)).first()
@@ -93,7 +95,7 @@ class ContentHybridRecs(baseModel):
                 sims += hybrid_sim
                 score += hybrid_sim * (movie.rating - item_mean)
         if score > 0 and sims > 0:
-            return target, (item_mean + score/sims)
+            return target, (item_mean + score / sims)
         return target, item_mean
 
     def predict_score(self, user_id, item_id):

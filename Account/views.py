@@ -26,7 +26,7 @@ def login(request):
                 request.session['username'] = username
                 message = '邮箱格式不正确!'
                 request.session['message'] = message
-                return HttpResponseRedirect(request.session['login_from'])
+                return HttpResponseRedirect(request.session.get('login_from','/account/login'))
             try:
                 user = User.objects.filter(username=username).first()
                 if user.password == password:
